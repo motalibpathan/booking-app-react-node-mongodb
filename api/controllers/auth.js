@@ -40,7 +40,12 @@ export const login = async (req, res, next) => {
 
     const { password, isAdmin, ...other } = user.toObject();
 
-    res.status(200).json({ ...other });
+    res
+      .cookie("access_token", token, {
+        httpOnly: true,
+      })
+      .status(200)
+      .json({ ...other });
   } catch (error) {
     next(error);
   }
