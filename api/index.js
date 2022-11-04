@@ -24,6 +24,9 @@ mongoose.connection.on("disconnect", function () {
   console.log("mongodb disconnected");
 });
 
+app.get("/", (req, res) => {
+  res.send("Yay backend is worked");
+});
 app.get("/api", (req, res) => {
   res.send("Hello from booking app");
 });
