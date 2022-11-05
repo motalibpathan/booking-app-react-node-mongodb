@@ -24,7 +24,6 @@ const Featured = () => {
   ];
   return (
     <div className="featured">
-      <h1>This is from client</h1>
       {featuredData.map((feature) => (
         <div key={feature.id} className="featuredItem">
           <img src={feature.img} alt="" />
