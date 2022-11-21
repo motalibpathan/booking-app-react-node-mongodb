@@ -3,7 +3,7 @@ import "./loading.css";
 
 export const BarLoading = () => {
   return (
-    <div class="lds-facebook">
+    <div className="lds-facebook">
       <div></div>
       <div></div>
       <div></div>

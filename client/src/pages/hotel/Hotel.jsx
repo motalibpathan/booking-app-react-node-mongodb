@@ -5,42 +5,42 @@ import {
   faLocationDot,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { useState } from "react";
+import { useContext, useState } from "react";
+import { useLoaderData, useNavigate, useParams } from "react-router-dom";
 import Footer from "../../components/footer/Footer";
 import Header from "../../components/header/Header";
 import MailList from "../../components/mailList/MailList";
 import Navbar from "../../components/navbar/Navbar";
+import Reserve from "../../components/reserve/Reserve";
+import { AuthContext } from "../../context/AuthContext";
+import { SearchContext } from "../../context/SearchContext";
 import "./hotel.css";
 
 const Hotel = () => {
   const [slideNumber, setSlideNumber] = useState(0);
   const [open, setOpen] = useState(false);
+  const [openModal, setOpenModal] = useState(false);
+  const data = useLoaderData();
+  const { id } = useParams();
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const photos = [
-    {
-      src: "https://cf.bstatic.com/xdata/images/city/max500/957801.webp?k=a969e39bcd40cdcc21786ba92826063e3cb09bf307bcfeac2aa392b838e9b7a5&o=",
-    },
-    {
-      src: "https://cf.bstatic.com/xdata/images/city/max500/957801.webp?k=a969e39bcd40cdcc21786ba92826063e3cb09bf307bcfeac2aa392b838e9b7a5&o=",
-    },
-    {
-      src: "https://cf.bstatic.com/xdata/images/city/max500/957801.webp?k=a969e39bcd40cdcc21786ba92826063e3cb09bf307bcfeac2aa392b838e9b7a5&o=",
-    },
-    {
-      src: "https://cf.bstatic.com/xdata/images/city/max500/957801.webp?k=a969e39bcd40cdcc21786ba92826063e3cb09bf307bcfeac2aa392b838e9b7a5&o=",
-    },
-    {
-      src: "https://cf.bstatic.com/xdata/images/city/max500/957801.webp?k=a969e39bcd40cdcc21786ba92826063e3cb09bf307bcfeac2aa392b838e9b7a5&o=",
-    },
-    {
-      src: "https://cf.bstatic.com/xdata/images/city/max500/957801.webp?k=a969e39bcd40cdcc21786ba92826063e3cb09bf307bcfeac2aa392b838e9b7a5&o=",
-    },
-  ];
+  const { dates, options } = useContext(SearchContext);
+
+  const MILLISECONDS_PER_DAY = 1000 * 60 * 60 * 24;
+  function dayDifference(date1, date2) {
+    const timeDiff = Math.abs(date2.getTime() - date1.getTime());
+    const diffDays = Math.ceil(timeDiff / MILLISECONDS_PER_DAY);
+    return diffDays;
+  }
+
+  const days = dayDifference(dates[0].endDate, dates[0].startDate);
 
   const handleOpen = (i) => {
     setSlideNumber(i);
     setOpen(true);
   };
+
   const handleMove = (direction) => {
     let newSlideNumber;
     if (direction === "l") {
@@ -49,6 +49,14 @@ const Hotel = () => {
       newSlideNumber = slideNumber === 5 ? 1 : slideNumber + 1;
     }
     setSlideNumber(newSlideNumber);
+  };
+
+  const handleClick = () => {
+    if (user) {
+      setOpenModal(true);
+    } else {
+      navigate("/login");
+    }
   };
   return (
     <div>
@@ -69,7 +77,11 @@ const Hotel = () => {
               onClick={() => handleMove("l")}
             />
             <div className="sliderWrapper">
-              <img src={photos[slideNumber].src} alt="" className="sliderImg" />
+              <img
+                src={data.photos[slideNumber]}
+                alt=""
+                className="sliderImg"
+              />
             </div>
             <FontAwesomeIcon
               icon={faCircleArrowRight}
@@ -80,23 +92,24 @@ const Hotel = () => {
         )}
         <div className="hotelWrapper">
           <button className="bookNow">Reserve or Book Now!</button>
-          <h1 className="hotelTitle">Grand Hotel</h1>
+          <h1 className="hotelTitle">{data.name}</h1>
           <div className="hotelAddress">
             <FontAwesomeIcon icon={faLocationDot} />
-            <span>Elton St 125 New york</span>
+            <span>{data.address}</span>
           </div>
           <span className="hotelDistance">
-            Excellent location - 500m from center
+            Excellent location - {data.distance}m from center
           </span>
           <span className="hotelPriceHighlight">
-            Book a stay over $113 at this property and get a free airport taxi
+            Book a stay over ${data.cheapestPrice} at this property and get a
+            free airport taxi
           </span>
           <div className="hotelImages">
-            {photos.map((photo, i) => (
+            {data.photos.map((photo, i) => (
               <div className="hotelImgWrapper">
                 <img
                   onClick={() => handleOpen(i)}
-                  src={photo.src}
+                  src={photo}
                   alt=""
                   className="hotelImg"
                 />
@@ -105,39 +118,27 @@ const Hotel = () => {
           </div>
           <div className="hotelDetails">
             <div className="hotelDetailsTexts">
-              <h1 className="hotelTitle">Stay in the heart of Krakow</h1>
-              <p className="hotelDesc">
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                Asperiores tempore eos at corporis delectus dolore porro neque
-                nisi doloribus est obcaecati unde inventore optio, odio saepe
-                quidem sapiente eaque facere. Explicabo natus quas fugit nobis
-                veritatis. Veritatis in molestiae tempore praesentium
-                accusantium recusandae architecto nulla debitis veniam dolore,
-                eveniet esse maiores error nobis. Blanditiis quisquam libero eos
-                laudantium non quas debitis vel qui! Enim corrupti, asperiores
-                libero, quis ab quas delectus reiciendis explicabo fuga
-                dignissimos ipsam molestiae provident numquam dicta expedita
-                obcaecati cumque ipsum? Reprehenderit dignissimos quidem aperiam
-                ipsum iusto at, fugiat similique eius minima possimus, unde
-                optio earum quas.
-              </p>
+              <h1 className="hotelTitle">{data.title}</h1>
+              <p className="hotelDesc">{data.description}</p>
             </div>
             <div className="hotelDetailsPrice">
-              <h1>Perfect for a 9-night stay!</h1>
+              <h1>Perfect for a {days}-night stay!</h1>
               <span>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Hic,
                 consequatur.
               </span>
               <h2>
-                <b>$945</b> (9 nights)
+                <b>${days * data.cheapestPrice * options.room}</b> ({days}{" "}
+                nights)
               </h2>
-              <button>Reserve or Book Now!</button>
+              <button onClick={handleClick}>Reserve or Book Now!</button>
             </div>
           </div>
         </div>
         <MailList />
         <Footer />
       </div>
+      {openModal && <Reserve setOpen={setOpenModal} hotelId={id} />}
     </div>
   );
 };
